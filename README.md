@@ -12,7 +12,7 @@ For information on how to implement these techniques for calibration or predicti
 **Calibration stations and satellite imagery**
 Because the river water and the sediment/organic matter it transports has variable characteristics that can affect its reflectance of light, we use unsupervised K-Means clustering to categorize rivers as one of six groups. We then made a category-specific calibration for each river grouping. The basics of this approach are described below.
 
-<img src="/Readme_figures/fig1_cluster_map_n6.jpg" width="60%" >
+<img src="/Readme_figures/fig1_cluster_map_n6.jpg" alt = "centered image' width="60%" >
 
 The Landsat 5 satellite operated from 1984-2012, and the Landsat 7 satellites has been in operation since 1999. Each satellite revists every location on earth every 16 days, though there is some overlap in the paths they take, meaning some areas are revisited twice every 16 days. Clouds obscure the earth from the view of satellites, so not every image is useful for calibration development or SSC estimation. However, on average the stations in the calibration dataset had 672 usable images of their river location.
 
