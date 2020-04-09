@@ -13,9 +13,14 @@ The code included here is used to
 **Standalone calibrations for rivers in the calibration dataset**
 In addition to the globally applicable calibration methods, standalone calibrations for 151 rivers are available.
 
-These can be found in the [standalone calibration subfolder](satellite-ssc/landsat-calibration/landsat-57-standalone-calibrations)
+These can be found in the [standalone calibration subfolder](landsat-57-standalone-calibrations)
 
-For example, this is a standalone calibration from WSC station 05GG001, North Saskatchewan River at Prince Albert, Saskatchewan, CA
+For example, this is a standalone calibration from **WSC station 05GG001**, 
+
+North Saskatchewan River at Prince Albert, Saskatchewan, CA
+
+[53.20344,-105.77214]
+
 <p align="center">
-  <img src="/satellite-ssc/landsat-calibration/landsat-57-standalone-calibrations/indiv_calib_plot_05GG001.pdf" width="60%" >
+  <img src="/satellite-ssc/landsat-57-standalone-calibrations/indiv_calib_plot_05GG001.pdf" width="60%" >
 </p>
