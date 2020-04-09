@@ -12,5 +12,6 @@ The code included here is used to
   
 **Standalone calibrations for rivers in the calibration dataset**
 In addition to the globally applicable calibration methods, standalone calibrations for 151 rivers are available.
+These can be found in the subfolder [Link]/standalone_calibrations
 
 
