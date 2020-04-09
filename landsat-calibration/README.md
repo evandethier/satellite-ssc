@@ -12,6 +12,9 @@ The code included here is used to
   
 **Standalone calibrations for rivers in the calibration dataset**
 In addition to the globally applicable calibration methods, standalone calibrations for 151 rivers are available.
-These can be found in the subfolder [Link]/standalone_calibrations
 
+These can be found in the subfolder [link]/landsat-57-standalone-calibrations/
 
+<p align="center">
+  <img src="/landsat-57-standalone-calibrations/indiv_calib_plot_05GG001.pdf" width="60%" >
+</p>
