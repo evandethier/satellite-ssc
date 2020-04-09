@@ -3,7 +3,7 @@
 
 Calibration has been completed for Landsat 5 and 7 LT1 Surface Reflectance Product (USGS/NASA)
 
-The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYBAM), and Taiwan (Water Resources Agency, WRA). 
+The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA). 
 
 For information on how to implement these techniques for calibration or prediction, refer to the documentation provided in the **satellite-ssc** subfolders.
 
@@ -38,7 +38,7 @@ We classified pixels in each Landsat image as water or not water (using the USGS
 
 **Clustering of optically similar rivers improves calibration**
 
-We tested different numbers of cluster groups, selecting a six-group approach by minimizing relative calibration model error and at-a-station bias. (c,d) Average cluster color for different suspended sediment concentrations, which is related to typical percent organic carbon content. 
+We tested different numbers of cluster groups, selecting a six-group approach by minimizing relative calibration model error and at-a-station bias.  Average true color appearance of river pixels for a gradient of suspended sediment concentrations shows variability based on cluster. This color variability is related to typical percent organic carbon content. 
 
 <p align="center">
   <img src="/Readme_figures/fig5_cluster_combined_fig.jpg" width="70%" >
