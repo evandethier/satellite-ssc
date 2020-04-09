@@ -1,7 +1,7 @@
 # landsat-57 #
 ## Estimating suspended sediment concentration (SSC) using a globally applicable calibration for Landat 5 and 7 surface reflectance satellite images ##
 
-Calibration has been completed for **Landsat 5 and 7** LT1 Surface Reflectance (SR) Product (USGS/NASA)
+Calibrations have been completed for **Landsat 5 and 7** LT1 Surface Reflectance (SR) Product (USGS/NASA)
 
 The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA). 
 
@@ -16,7 +16,7 @@ The code included here is used to
   
 ### **Standalone calibrations for rivers in the calibration dataset** ###
 
-In addition to the globally applicable calibration methods, standalone calibrations for 151 rivers are available.
+In addition to the globally applicable calibration methods, standalone calibrations for 138 rivers are available.
 
 These can be found in the [standalone calibration subfolder](landsat-57-standalone-calibrations)
 
