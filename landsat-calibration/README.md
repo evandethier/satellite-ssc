@@ -6,11 +6,16 @@ Calibration has been completed for **Landsat 5 and 7** LT1 Surface Reflectance (
 The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA). 
 
 The code included here is used to 
-  -Download data from online repositories
-  -Generate calibrations
-  -Apply calibrations to predict SSC for Landsat 5 and 7 SR data
+
+  -[Download data from online repositories](insitu-data-download.R)
   
-**Standalone calibrations for rivers in the calibration dataset**
+  -[Generate calibrations](landsat-57-calibration.R)
+  
+  -[Apply calibrations to predict SSC for Landsat 5 and 7 SR data](landsat-57-prediction.R)
+  
+  
+### **Standalone calibrations for rivers in the calibration dataset** ###
+
 In addition to the globally applicable calibration methods, standalone calibrations for 151 rivers are available.
 
 These can be found in the [standalone calibration subfolder](landsat-57-standalone-calibrations)
