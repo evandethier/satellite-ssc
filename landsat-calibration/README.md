@@ -22,5 +22,5 @@ North Saskatchewan River at Prince Albert, Saskatchewan, CA
 [53.20344,-105.77214]
 
 <p align="center">
-  <img src="/landsat-calibration/landsat-57-standalone-calibrations/indiv_calib_plot_05GG001.pdf" class = "image fit" width="60%" >
+  <img src="/landsat-calibration/landsat-57-standalone-calibrations/indiv_calib_plot_05GG001.pdf" class = "image fit" type="application/pdf" width="60%" >
 </p>
