@@ -5,7 +5,7 @@ Calibration has been completed for Landsat 5 and 7 LT1 Surface Reflectance Produ
 
 The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA). 
 
-For information on how to implement these techniques for calibration or prediction, refer to the documentation provided in the **satellite-ssc** subfolders.
+For information on how to implement these techniques for calibration or prediction, refer to the documentation provided in the [**satellite-ssc**](landsat-calibration) subfolders.
 
 # Introduction to calibration techniques and results #
 
