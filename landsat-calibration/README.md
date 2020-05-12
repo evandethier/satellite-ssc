@@ -3,9 +3,9 @@
 
 Calibrations have been completed for **Landsat 5 and 7** LT1 Surface Reflectance (SR) Product (USGS/NASA)
 
-The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA). 
+The calibrations described here were made using 134,697 *in situ* measurements at 727 stations in the United States (United States Geological Survey, USGS), Canada (Water Survey of Canada, WSC), South America (HYdro-geochemistry of the AMazonian Basin, HYBAM), and Taiwan (Water Resources Agency, WRA).
 
-The code included here is used to 
+Based on Landsat surface reflectance data obtained using this Google Earth Engine [Landsat image sampling  protocol](https://github.com/evandethier/earthengine), the code included here is used to 
 
   -[Download data from online repositories](insitu-data-download.R)
   
