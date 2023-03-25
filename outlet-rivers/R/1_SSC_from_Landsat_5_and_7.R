@@ -1,5 +1,5 @@
 # Import Landsat data (raw output from Google Earth Engine)
-#### LIBRARY IMPORTS ####
+#### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)
 library(tidyverse)
@@ -18,11 +18,23 @@ library(ggrepel)
 library(gstat)
 library(ggtext)
 library(maps)
+library(patchwork)
+library(egg)
 
 # Download data from USGS
 library(dataRetrieval)
 
-#### THEMES ####
+#### ii. THEMES ####
+# Import world map
+world_map <- data.table(map_data(map = 'world'))
+
+## Colors
+# Set colors for plotting
+# decrease_color <- '#2F9FD2' # More subtle blue
+decrease_color <- '#0076AD'
+increase_color <- '#FA9E2F'
+
+## Plotting themes
 theme_clean <- theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
@@ -55,10 +67,11 @@ season_facet <- theme_facet + theme(
   strip.text = element_text(hjust = 0, margin = margin(0,0,0,0, unit = 'pt'))
 )
 
+## Plotting axis formats
 # Converts log10 axis values to format 10^x
 fancy_scientific_modified <- function(l) { 
   # turn in to character string in scientific notation 
-  if(abs(max(log10(l), na.rm = T) - min(log10(l), na.rm = T)) > 2 | 
+  if(abs(max(log10(l), na.rm = T) - min(log10(l), na.rm = T)) >= 2 | 
      # min(l, na.rm = T) < 0.01 | 
      max(l, na.rm = T) > 1e5){ 
     l <- log10(l)
@@ -76,20 +89,20 @@ lat_dd_lab <- function(l){
   label <- c()
   for(i in 1:length(l)){
     label_sel <- ifelse(l[i] < 0, paste0(abs(l[i]), '°S'), 
-                    paste0(abs(l[i]), '°N'))
+                        paste0(abs(l[i]), '°N'))
     label <- c(label, label_sel)
   }
-return(label)}
+  return(label)}
 
 # Format longitude for figures
 long_dd_lab <- function(l){
   label <- c()
   for(i in 1:length(l)){
     label_sel <- ifelse(l[i] < 0, paste0(abs(l[i]), '°W'), 
-                    paste0(abs(l[i]), '°E'))
+                        paste0(abs(l[i]), '°E'))
     label <- c(label, label_sel)
   }
-return(label)}
+  return(label)}
 
 # Format years with abbreviation (1990 becomes '90)
 year_abbrev_lab <- function(l){
@@ -100,7 +113,15 @@ year_abbrev_lab <- function(l){
   }
   return(label)}
 
-#### SET DIRECTORIES ####
+# Set up log-10 breaks for plot axes
+breaks <- 10^(-10:10)
+minor_breaks <- rep(1:9, 21)*(10^rep(-10:10, each=9))
+
+get_mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+#### iii. SET DIRECTORIES ####
 # Set root directory
 wd_root <- getwd()
 
@@ -118,8 +139,7 @@ for(i in 1:length(export_folder_paths)){
   if(!dir.exists(path_sel)){
     dir.create(path_sel)}
 }
-
-#### IMPORT LANDSAT DATA AND DEFINE COLUMNS ####
+#### 1. IMPORT LANDSAT DATA AND DEFINE COLUMNS ####
 # Import Landsat data from river outlets
 river_landsat_import <- fread(paste0(wd_imports, 'global_outlet_rivers_120km_river_training_ls57_rawBands_b7lt500_15km2.csv'))
 
@@ -193,13 +213,59 @@ river_landsat_import <- na.omit(river_landsat_import[,
 # Lat/Long, drainage area, number of images per river, avg. number of pixels per river
 outlet_rivers_ls_metadata <- river_landsat_import[,.(n_imgs = uniqueN(sample_dt),
                                      n_pixels = mean(num_pix, na.rm = T)),
-                                  by = .(site_no, Latitude, Longitude, drainage_area_km2, width)]
+                                  by = .(site_no, Latitude, Longitude, drainage_area_km2, width)][
+                                    width > 30
+                                  ]
                                   
-#### ASSIGN CLUSTER TO ALL DATA ####
+#### 2. ASSIGN CLUSTER TO ALL DATA ####
 # Import cluster center object (for n clusters = 1 to 10)
 # This object was generated in the initial SSC calibration from Dethier, 2020 JGR-ES
 clusters_calculated_list <- readRDS(paste0(wd_imports, 'cluster_centers.rds'))
 
+# This approach assigns a cluster to each river
+# Other approaches allow for more dynamic cluster assignment
+# e.g., by month/season or decade
+getCluster <- function(df,clustering_vars,n_centers, kmeans_object){
+  # Compute band median at each site for clustering variables
+  site_band_quantiles_all <- df[
+    ,':='(month = month(sample_dt))][
+      # n_insitu_samples_bySite][N_insitu_samples > 12
+      ,.(N_samples = .N,
+         B1 = median(B1),
+         B2 = median(B2),
+         B3 = median(B3),
+         B4 = median(B4),
+         # B5 = median(B5),
+         # B7 = median(B7),
+         B2.B1 = median(B2.B1),
+         B3.B1 = median(B3.B1),
+         B4.B1 = median(B4.B1),
+         B3.B2 = median(B3.B2),
+         B4.B2 = median(B4.B2),
+         B4.B3 = median(B4.B3),
+         B4.B3.B1 = median(B4.B3/B1)), 
+      by = .(station_nm,site_no)]
+  
+  site_band_quantile_scaled <- scale(site_band_quantiles_all[,..clustering_vars], 
+                                     center = attributes(site_band_scaling)$`scaled:center`, 
+                                     scale = attributes(site_band_scaling)$`scaled:scale`)
+  
+  closest.cluster <- function(x) {
+    cluster.dist <- apply(kmeans_object$centers, 1, function(y) sqrt(sum((x-y)^2)))
+    return(which.min(cluster.dist)[1])
+  }
+  site_band_quantiles_all$cluster <- apply(site_band_quantile_scaled, 1, closest.cluster)
+  
+  df_cluster <- merge(df,site_band_quantiles_all[,c('site_no','cluster')], by = 'site_no')
+  df_cluster$cluster_sel <- df_cluster$cluster
+  return(df_cluster)
+  
+}
+
+# (NOT USED IN THIS APPLICATION. Uncomment in below line to choose monthly assignment)
+# This approach assigns a cluster to each river, !!BY MONTH!!
+# Allows for a dynamic cluster assignment
+# e.g., by month/season or decade
 # Function to create river clustering function: break out by month
 getCluster_monthly <- function(df,clustering_vars,n_centers, kmeans_object){
   # Compute band median at each site for clustering variables
@@ -239,18 +305,33 @@ getCluster_monthly <- function(df,clustering_vars,n_centers, kmeans_object){
 }
 # Get cluster for each site based on typical spectral profile
 # Apply cluster to every Landsat daily observation
-river_landsat_cl <- getCluster_monthly(river_landsat_import, 
-                                       clustering_vars,cluster_n_best, 
-                                       clusters_calculated_list[[cluster_n_best]])
+# For this application, use single cluster for river
+# Other applications may benefit from a monthly breakdown
+# river_landsat_cl <- getCluster_monthly(
+river_landsat_cl <- getCluster(
+  river_landsat_import, 
+  clustering_vars,cluster_n_best, 
+  clusters_calculated_list[[cluster_n_best]])
 
-
+# Calculate monthly median color for each river
+site_monthly_band_median_color <- river_landsat_cl[
+    ,.(N_samples = .N,
+       B1 = median(B1),
+       B2 = median(B2),
+       B3 = median(B3),
+       B4 = median(B4),
+       B5 = median(B5),
+       B7 = median(B7)
+    ),
+  by = .(site_no, month)]
+  
 # Save cluster centers (CAREFUL! SEE BELOW)
 # Commented out to avoid overwriting. 
 # Do not comment back in unless you are absolutely sure you want to overwrite!
 # saveRDS(clusters_calculated_list, paste0(wd_imports, 'cluster_centers.rds'))
 
 
-#### CALCULATE SSC ####
+#### 3. CALCULATE SSC ####
 # Import SSC prediction functions (for n clusters = 1 to 10)
 ssc_cluster_funs <- readRDS(paste0(wd_imports,'SSC_cluster_function.rds'))
 
@@ -293,18 +374,38 @@ river_landsat_pred <- getSSC_pred(na.omit(river_landsat_cl, cols = c(regressors_
                                                              SSC_mgL < 20000
                                                            ]
 
+
 # Select only necessary columns
 river_landsat_pred <- river_landsat_pred[,.(site_no, sample_dt, month, decade, SSC_mgL, 
                                             cluster, Latitude, Longitude, 
                                             drainage_area_km2, num_pix, width)]
 
+# Address known issue with Congo River
+# Based on HYBAM in situ measurements
+river_landsat_pred <- river_landsat_pred[site_no == 'st_000000000000000013b9', ':='(SSC_mgL = SSC_mgL/8)]
+
+#### CALCULATE BAND AVERAGES FOR COLOR VISUALIZATION ####                                                 
 # Get median monthly cluster assignment for visualization
 river_cluster_assignment_monthly <- river_landsat_pred[
   ,.(cluster = median(cluster, na.rm = T)),
   by = .(site_no, Latitude, Longitude, month)]
 
+# Get river color for each cluster and SSC category
+cluster_ssc_cat_colors <- merge(
+      river_landsat_pred,
+      river_landsat_cl[,.(site_no, sample_dt, B1, B2, B3)],
+      by = c('site_no','sample_dt'))[,':='(
+        SSC_cat = cut(SSC_mgL,
+                      breaks = c(-Inf, 20, 50, 100, 300, 500, Inf),
+                      labels = c('0-20', '21-50', '51-100', '100-300', '300-500', '>500')))][
+                        ,.(blue = mean(B1, na.rm = T),
+                           green = mean(B2, na.rm = T),
+                           red = mean(B3, na.rm = T)),
+                        by = .(SSC_cat, cluster)
+                        ]
 
-#### EXPORT DATA FOR SUBSEQUENT STEPS ####
+
+#### 4. EXPORT DATA FOR SUBSEQUENT STEPS ####
 # Landsat-derived daily SSC estimates
 fwrite(river_landsat_pred, file = paste0(wd_imports, 'river_landsat_pred.csv'))
 
@@ -314,10 +415,15 @@ fwrite(river_cluster_assignment_monthly, file = paste0(wd_imports, 'river_cluste
 # River metadata, including site ID, Lat/Long, drainage area, width, number of images, number of pixels
 fwrite(outlet_rivers_ls_metadata, file = paste0(wd_imports, 'outlet_rivers_ls_metadata.csv'))
 
+# River color, by month
+fwrite(site_monthly_band_median_color, file = paste0(wd_imports, 'site_monthly_band_median_color.csv'))
+
+# River color for each cluster and SSC category
+fwrite(cluster_ssc_cat_colors, file = paste0(wd_imports, 'cluster_ssc_cat_colors.csv'))
 
 
 
-#### LANDSAT SSC TESTING AND INSPECTION ####
+#### 5. LANDSAT SSC TESTING AND INSPECTION ####
 ## Test and visualize clusters
 # Plot band 1 (blue) and band 3 (red) to visualize cluster groups
 blue_vs_red_plot_by_cluster <- ggplot(river_landsat_cl[year(sample_dt) == 2011 & 
@@ -337,67 +443,13 @@ aes(x = B1, y = B3, color = factor(cluster))) +
   )
 
 
-#### VISUALIZE LANDSAT IMAGE STATISTICS ####
+#### 6. VISUALIZE LANDSAT IMAGE STATISTICS ####
 # How many images are there, images per river, pixels per image, etc.
 
 ## CALCULATION FOR MANUSCRIPT ##
 # N Images per site
 summary(outlet_rivers_ls_metadata)
-
-# Plot images per site
-images_per_site_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = n_imgs)) +
-  # c('#CABFD9','#565902','#BF9004')
-  geom_histogram(binwidth = 50, fill = '#368096', color = 'black', lwd = 0.2) +
-  season_facet + 
-  scale_x_continuous(expand = expansion(mult = c(0,0))) +
-  scale_y_continuous(expand = expansion(mult = c(0,0.1))) +
-  theme(panel.background = element_rect(fill = 'grey90'),
-        panel.grid.major.y = element_line(color = 'white', size = 0.25),
-        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
-  labs(x = 'N images per river',
-       y = 'Count')
-
-# Plot pixels per sample
-pixels_per_sample_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = n_pixels)) +
-  # c('#CABFD9','#565902','#BF9004')
-  geom_histogram(bins = 30, fill = '#D67258', color = 'black', lwd = 0.2) +
-  season_facet + 
-  # scale_x_continuous(expand = expansion(mult = c(0,0))) +
-  scale_x_log10(labels = fancy_scientific_modified) +
-  scale_y_continuous(expand = expansion(mult = c(0,0.1))) +
-  theme(panel.background = element_rect(fill = 'grey90'),
-        panel.grid.major.y = element_line(color = 'white', size = 0.25),
-        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
-  labs(x = 'N pixels per river sample',
-       y = 'Count')
-
-# Plot number of sample pixels vs. width
-pixels_vs_width_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = width, y = n_pixels)) +
-  # c('#CABFD9','#565902','#BF9004')
-  geom_point() +
-  season_facet + 
-  scale_x_log10(labels = fancy_scientific_modified) +
-  scale_y_log10(labels = fancy_scientific_modified) +
-  theme(panel.background = element_rect(fill = 'grey90'),
-        panel.grid.major.y = element_line(color = 'white', size = 0.25),
-        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
-  labs(y = 'N pixels per river sample',
-       x = 'Approximate river width (m)')
-
-# Combine image statistics plots
-image_statistics_panel_plot <- 
-  ggarrange(images_per_site_plot, pixels_per_sample_plot, pixels_vs_width_plot,
-            ncol = 3, align = 'hv', labels = c('B','C','D'))
-
-# Save combined image statistics plots
-ggsave(image_statistics_panel_plot, filename = paste0(wd_figures, 'image_statistics_panel_plot.pdf'),
-       width = 8, height = 4, useDingbats = F)
-ggsave(image_statistics_panel_plot, filename = paste0(wd_figures, 'image_statistics_panel_plot.png'),
-       width = 8, height = 4)
-
-# Import world map
-world_map <- data.table(map_data(map = 'world'))
-
+## Fig. S1A
 # Average discharge-weighted SSC at each station
 ls_stations_map <- ggplot() +
   geom_polygon(data = world_map, aes(x = long, y = lat, group = group),
@@ -434,12 +486,70 @@ ggsave(ls_stations_map, filename = paste0(wd_figures, 'ls_stations_map.pdf'),
 ggsave(ls_stations_map, filename = paste0(wd_figures, 'ls_stations_map.png'),
        width = 11, height = 6)
 
-# Add N image statistics to plot
-image_statistics_panel_plot_wmap <- ggarrange(
+## Fig. S1B
+# Plot images per site
+images_per_site_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = n_imgs)) +
+  # c('#CABFD9','#565902','#BF9004')
+  geom_histogram(binwidth = 50, fill = '#368096', color = 'black', lwd = 0.2) +
+  season_facet + 
+  scale_x_continuous(expand = expansion(mult = c(0,0))) +
+  scale_y_continuous(expand = expansion(mult = c(0,0.1))) +
+  theme(panel.background = element_rect(fill = 'grey90'),
+        panel.grid.major.y = element_line(color = 'white', size = 0.25),
+        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
+  labs(x = 'N images per river',
+       y = 'Count')
+
+## Fig. S1C
+# Plot pixels per sample
+pixels_per_sample_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = n_pixels)) +
+  # c('#CABFD9','#565902','#BF9004')
+  geom_histogram(bins = 30, fill = '#D67258', color = 'black', lwd = 0.2) +
+  season_facet + 
+  # scale_x_continuous(expand = expansion(mult = c(0,0))) +
+  scale_x_log10(labels = fancy_scientific_modified) +
+  scale_y_continuous(expand = expansion(mult = c(0,0.1))) +
+  theme(panel.background = element_rect(fill = 'grey90'),
+        panel.grid.major.y = element_line(color = 'white', size = 0.25),
+        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
+  labs(x = 'N pixels per river sample',
+       y = 'Count')
+
+## Fig. S1D
+# Plot number of sample pixels vs. width
+pixels_vs_width_plot <- ggplot(outlet_rivers_ls_metadata, aes(x = width, y = n_pixels)) +
+  # c('#CABFD9','#565902','#BF9004')
+  geom_point() +
+  season_facet + 
+  scale_x_log10(labels = fancy_scientific_modified) +
+  scale_y_log10(labels = fancy_scientific_modified) +
+  theme(panel.background = element_rect(fill = 'grey90'),
+        panel.grid.major.y = element_line(color = 'white', size = 0.25),
+        panel.grid.minor.y = element_line(color = 'white', size = 0.25)) +
+  labs(y = 'N pixels per river sample',
+       x = 'Approximate river width (m)')
+
+## Fig. S1B-D
+# Combine image statistics plots
+image_statistics_panel_plot <- 
+  ggpubr::ggarrange(images_per_site_plot, pixels_per_sample_plot, pixels_vs_width_plot,
+            ncol = 3, align = 'hv', labels = c('B','C','D'))
+
+# Save combined image statistics plots
+# (Just a part of what is used in the paper)
+ggsave(image_statistics_panel_plot, filename = paste0(wd_figures, 'image_statistics_panel_plot.pdf'),
+       width = 8, height = 4, useDingbats = F)
+ggsave(image_statistics_panel_plot, filename = paste0(wd_figures, 'image_statistics_panel_plot.png'),
+       width = 8, height = 4)
+
+## Fig. S1
+# Combine map of N sites with image statistics
+image_statistics_panel_plot_wmap <- ggpubr::ggarrange(
   ls_stations_map, NULL, image_statistics_panel_plot,
   heights = c(1, 0, 0.7), ncol = 1, labels = c('A','',''), align = 'v')
-ggsave(image_statistics_panel_plot_wmap, filename = paste0(wd_figures, 'image_statistics_panel_plot_wmap.pdf'),
+
+ggsave(image_statistics_panel_plot_wmap, filename = paste0(wd_figures, 'FigS1_image_statistics_panel_plot_wmap.pdf'),
        width = 11, height = 9, useDingbats = F)
-ggsave(image_statistics_panel_plot_wmap, filename = paste0(wd_figures, 'image_statistics_panel_plot_wmap.png'),
+ggsave(image_statistics_panel_plot_wmap, filename = paste0(wd_figures, 'FigS1_image_statistics_panel_plot_wmap.png'),
        width = 11, height = 9)
 
