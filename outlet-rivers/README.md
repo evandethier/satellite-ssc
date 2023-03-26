@@ -16,7 +16,7 @@ Rivers carrying different amounts and types of sediment reflect light differentl
 We can estimate suspended sediment concentration, a measure of the "muddiness" of a river, using algorithms based on these Landsat bands. 
 
 
-***
+* * *
 
 #### Variations in river suspended sediment transport
 
@@ -31,7 +31,7 @@ We have analyzed seasonal and long-term changes in more than 414 of the major ri
 * We published related work on gold mining in and around rivers in the Peruvian Amazon [in a paper in *PNAS*](https://doi.org/10.1073/pnas.1907842116)[^2] in 2019.
 
 
-***
+* * *
 
 #### Human influence on river sediment
 
@@ -52,7 +52,7 @@ The trapping of sediment by dams in the Global North and the increased erosion i
 
 ![**Fig. 3 from our paper in [*Science*](https://doi.org/10.1126/science.abn798) shows the difference in sediment transport outcomes in the Global North, where dams have decreased sediment transport, and Global South, where increased erosion has increased sediment transport. Changes in temperature and precipitation do not generally explain these changes in river processes.**](visuals/Fig3_latitude_trends_figure.png)
 
-***
+* * *
 
 #### Where is the data and code? 
 
@@ -64,9 +64,9 @@ The trapping of sediment by dams in the Global North and the increased erosion i
 
 
 
+* * *
 
-
-#### Conclusion, for now
+#### Conclusion, but always a work in progress!
 
 Scroll through the remainder of the page to see every river in our analysis, organized by continent and river cluster.
 
@@ -89,6 +89,7 @@ Scroll through the remainder of the page to see every river in our analysis, org
 
 ![**Seasonality plots for South America**](visuals/continent_river_color_grid_plot_South America.png)
 
+* * * 
 
 #### References
 
