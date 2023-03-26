@@ -1,3 +1,6 @@
+# Calculate patterns and trends in suspended sediment transport.
+# For individual rivers over time and in various aggregations/subsets
+# (landmass, pre-/post-dam, etc.)
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

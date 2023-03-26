@@ -1,3 +1,4 @@
+# Analyze data and create figures for publication.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

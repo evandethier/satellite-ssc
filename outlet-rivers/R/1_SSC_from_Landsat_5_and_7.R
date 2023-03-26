@@ -1,4 +1,4 @@
-# Import Landsat data (raw output from Google Earth Engine)
+# Import and clean Landsat data (output from Google Earth Engine), apply suspended sediment algorithms.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

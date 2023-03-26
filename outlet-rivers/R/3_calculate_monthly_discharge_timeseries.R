@@ -1,5 +1,7 @@
 #### CACLULATE MONTHLY DISCHARGE TIMESERIES
-# Calculate monthly discharge for each river with satellite-derived suspended sediment data
+# Calculate monthly discharge for each river with satellite-derived suspended sediment data.
+
+## NOTES:
 # Takes about 20 minutes
 
 # Only run from scratch if `discharge_month_yr_data_all.csv` AND/OR
@@ -680,11 +682,11 @@ for(i in 1:length(outlet_river_names)){
 # Split file into monthly data and metadata
 # Monthly data
 # Careful!! This will overwrite an existing file
-# fwrite(discharge_month_yr_data_all, paste0(wd_imports, 'discharge_month_yr_data_all.csv'))
+fwrite(discharge_month_yr_data_all, paste0(wd_imports, 'discharge_month_yr_data_all.csv'))
 
 # Metadata
 # Careful!! This will overwrite an existing file
-# fwrite(discharge_metadata_all, paste0(wd_imports, 'discharge_metadata_all.csv'))
+fwrite(discharge_metadata_all, paste0(wd_imports, 'discharge_metadata_all.csv'))
 
 #### TEST ####
 # continent_files <- list.files(runoff_folder_sel)

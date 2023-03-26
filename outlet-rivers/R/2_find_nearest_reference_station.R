@@ -1,3 +1,4 @@
+# Find nearest reference in situ sediment flux station.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)
@@ -152,6 +153,7 @@ milliman_river_database <- fread(paste0(
 #### 1B. IMPORT METADATA FOR LANDSAT OBSERVATIONS ####
 # River metadata, including site ID, Lat/Long, drainage area, width, number of images, number of pixels
 outlet_rivers_ls_metadata <- fread(paste0(wd_imports, 'outlet_rivers_ls_metadata.csv'))
+
 
 # Get duplicated Milliman and Farnsworth rivers (based on RiverName field)
 # Not sure this does anything

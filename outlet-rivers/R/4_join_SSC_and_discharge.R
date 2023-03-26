@@ -1,3 +1,4 @@
+# Join satellite-derived SSC dataset with GRDC discharge data.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

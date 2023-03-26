@@ -1,3 +1,4 @@
+# Calculate timeseries of dam building & reservoir capacity for global outlet rivers.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

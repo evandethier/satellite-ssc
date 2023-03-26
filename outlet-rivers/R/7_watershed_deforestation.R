@@ -1,3 +1,4 @@
+# Use data from the Hansen et al., 2012 dataset to evaluate deforestation in global outlet rivers.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)

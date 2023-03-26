@@ -1,3 +1,4 @@
+# Analyze patterns and trends in watershed climate (T and P) for global outlet rivers.
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)
