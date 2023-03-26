@@ -6,7 +6,7 @@ output: html_document
 ## Analyzing changes in river sediment transport
 
 #### Introduction
-The code in this repository builds on our efforts to analyze the transport of suspended sediment by rivers. We use satellite images to do these anayses, using [algorithms calibrated with more than 130,000 measurements](https://github.com/evandethier/satellite-ssc) made directly in rivers. This satellite-based approach is relatively new, and we're always trying to improve it! Its benefits are the ability to analyze millions of images globally, to get a sense of how rivers function or how they have changed over time.
+The code in this repository builds on our efforts to analyze the transport of suspended sediment by rivers. We use satellite images to do these analyses, using [algorithms calibrated with more than 130,000 measurements](https://github.com/evandethier/satellite-ssc) made directly in rivers. This satellite-based approach is relatively new, and we're always trying to improve it! Its benefits are the ability to analyze millions of images globally, to get a sense of how rivers function or how they have changed over time.
 
 ![**Rivers carrying sediment into the Mediterranean. Image from the Landsat 7 satellite.**](visuals/vjose_river_greece_20020312_ls7_composite_small_cropped.png)
 
