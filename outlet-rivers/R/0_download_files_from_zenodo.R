@@ -1,4 +1,14 @@
-# Download raw data from Zotero repository
+# Download raw suspended sediment data from Zenodo repository.
+# If you run this code from inside an R project, 
+# it should download files and set-up the folder structure
+# necessary for running the remaining code files (1-10).
+# 
+# Note: you will need to install the packages loaded in section `i. LIBRARY IMPORTS`
+# to run the remaining .R files. For this download, you only need the `zen4R` package.
+# 
+# Send questions to Evan Dethier
+# evan.n.dethier (at) g-mail
+
 #### i. LIBRARY IMPORTS ####
 # Tables
 library(data.table)
@@ -21,7 +31,7 @@ library(maps)
 library(patchwork)
 library(egg)
 
-# Download data from USGS and Zotero
+# Download data from USGS and Zenodo
 library(dataRetrieval)
 library(zen4R)
 
@@ -161,19 +171,26 @@ for(i in 1:length(export_folder_paths)){
 #### 1. SET-UP AND EXECUTE DOWNLOAD(S) ####
 #### 1A. SET-UP DOWNLOAD(S) ####
 # Specify Zenodo DOI
-zenodo_doi <- '10.5281/zenodo.6366617'
-zenodo_doi <- '10.5281/zenodo.7699122'
-
+zenodo_doi <- '10.5281/zenodo.7772047'
 
 # Select certain Zenodo files
-zenodo_files <- list() # all files
-zenodo_files <- 'evandethier/satellite-ssc-v2.0.zip'
 
-zenodo_code <- 'evandethier/satellite-ssc-code.zip'
-zenodo_code <- 'evandethier/satellite-ssc-discharge_files.zip'
+# All files needed to create project, split into sediment files and discharge files
+# (RECOMMENDED APPROACH)
+zenodo_files_sediment <- 'evandethier_2022_global_sediment_flux_required_sediment_files.zip'
+zenodo_files_discharge <- c('africa.zip','asia.zip','europe.zip','namerica.zip','pacific.zip','samerica.zip')
+zenodo_files <- c(zenodo_files_sediment,zenodo_files_discharge)
 
-get_versions(zenodo_doi)
-export_zenodo(zenodo_doi, filename = 'test', format = 'BibTeX')
+## OTHER OPTIONS: DOWNLOAD ALL FILES USED IN PROJECT. ##
+# CAREFUL: IF YOU USE THIS, YOU'LL NEED TO MODIFY THE DOWNLOAD CODE
+# If you don't want to run the code from scratch, I suggest downloading manually from Zenodo.
+# Then you can skip straight to `8_figures_and_final_calculations.R` OR
+# Analyze the files as you wish.
+
+# # All files in project (even those created during project)
+# zenodo_files <- 'evandethier_2022_global_sediment_flux_all_imported_files.zip'
+
+#### 1B. DOWNLOAD FROM ZENODO ####
 # Download the files from Zenodo
 # Stored as a zip file in folder specified by `path`
 download_zenodo(
@@ -182,8 +199,24 @@ download_zenodo(
   files = zenodo_files
 )
 
-# Downloaded file name doesn't have the 'evandethier' prefix
-zenodo_files_download <- paste0(wd_imports, gsub('evandethier/', '', zenodo_files))
-unzip(zenodo_files_download,                   # pathname of the zip file 
-      exdir = wd_imports,     # pathname to extract files to
-      junkpaths = T) # Just adds the files without making any sub-folders
+#### 2. UNZIP DOWNLOADED FILES AND ARRANGE IN FILE STRUCTURE ####
+# Unzip all downloaded files
+# Arrange in folder structure for next .R files
+for(i in 1:length(zenodo_files)){
+  # Select file
+  zipfile_sel <- zenodo_files[i]
+  # Downloaded file name doesn't have the 'evandethier' prefix, so remove it
+  zenodo_file_download <- paste0(wd_imports, gsub('evandethier/', '', zipfile_sel))
+  
+  # Determine whether to add files to subfolder
+  # (Discharge data go in subfolders, everything else stays out)
+  exdir_sel <- ifelse(zipfile_sel %chin% zenodo_files_discharge, 
+                      paste0(wd_imports, gsub('.zip', '', zipfile_sel)), 
+                      wd_imports)
+  
+  # Unzip and store in main folder or subfolders
+  unzip(zenodo_file_download, # pathname of the zip file 
+        exdir = exdir_sel,    # pathname to put extracted files (subfolder if discharge)
+        junkpaths = T)        # Just adds the files without making any sub-folders
+}
+

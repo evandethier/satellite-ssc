@@ -131,9 +131,10 @@ wd_imports <- paste0(wd_root,"/outlet-rivers/imports/")
 wd_exports <- paste0(wd_root,"/outlet-rivers/exports/")
 
 wd_figures <- paste0(wd_root, "/outlet-rivers/figures/")
+wd_visuals <- paste0(wd_root, "/outlet-rivers/visuals/")
 
 # Create folders within root directory to organize outputs if those folders do not exist
-export_folder_paths <- c(wd_imports, wd_exports, wd_figures)
+export_folder_paths <- c(wd_imports, wd_exports, wd_figures,wd_visuals)
 for(i in 1:length(export_folder_paths)){
   path_sel <- export_folder_paths[i]
   if(!dir.exists(path_sel)){
