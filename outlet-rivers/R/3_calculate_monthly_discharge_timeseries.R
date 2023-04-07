@@ -679,6 +679,7 @@ for(i in 1:length(outlet_river_names)){
 }
 
 #### 7. WRITE DATA TO FILE (IF IT DOESN'T EXIST) ####
+fwrite(nearby_stns_final, file = paste0(wd_imports, 'nearby_stns_final.csv'))
 # Split file into monthly data and metadata
 # Monthly data
 # Careful!! This will overwrite an existing file

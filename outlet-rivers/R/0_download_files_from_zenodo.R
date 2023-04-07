@@ -193,6 +193,12 @@ zenodo_files <- c(zenodo_files_sediment,zenodo_files_discharge)
 #### 1B. DOWNLOAD FROM ZENODO ####
 # Download the files from Zenodo
 # Stored as a zip file in folder specified by `path`
+
+# First set timeout to longer so files will download
+getOption('timeout')
+options(timeout=400)
+
+# Then download files
 download_zenodo(
   doi = zenodo_doi,
   path = wd_imports,

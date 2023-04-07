@@ -222,7 +222,10 @@ outlet_rivers_ls_metadata <- river_landsat_import[,.(n_imgs = uniqueN(sample_dt)
 # Import cluster center object (for n clusters = 1 to 10)
 # This object was generated in the initial SSC calibration from Dethier, 2020 JGR-ES
 clusters_calculated_list <- readRDS(paste0(wd_imports, 'cluster_centers.rds'))
+site_band_scaling <- readRDS(paste0(wd_imports, 'site_band_scaling_all.rds'))
 
+cluster_n_best <- 6
+clustering_vars <- colnames(clusters_calculated_list[[cluster_n_best]]$centers)
 # This approach assigns a cluster to each river
 # Other approaches allow for more dynamic cluster assignment
 # e.g., by month/season or decade
@@ -248,8 +251,8 @@ getCluster <- function(df,clustering_vars,n_centers, kmeans_object){
       by = .(station_nm,site_no)]
   
   site_band_quantile_scaled <- scale(site_band_quantiles_all[,..clustering_vars], 
-                                     center = attributes(site_band_scaling)$`scaled:center`, 
-                                     scale = attributes(site_band_scaling)$`scaled:scale`)
+                                     center = data.table(attributes(site_band_scaling)$`scaled:center`[clustering_vars])[,V1], 
+                                     scale = data.table(attributes(site_band_scaling)$`scaled:scale`[clustering_vars])[,V1])
   
   closest.cluster <- function(x) {
     cluster.dist <- apply(kmeans_object$centers, 1, function(y) sqrt(sum((x-y)^2)))
@@ -335,7 +338,7 @@ site_monthly_band_median_color <- river_landsat_cl[
 #### 3. CALCULATE SSC ####
 # Import SSC prediction functions (for n clusters = 1 to 10)
 ssc_cluster_funs <- readRDS(paste0(wd_imports,'SSC_cluster_function.rds'))
-
+regressors_all <- ssc_cluster_funs[[cluster_n_best]][["glmnet.fit"]][["beta"]]@Dimnames[[1]]
 # Save SSC estimation algorithm. (CAREFUL! SEE BELOW)
 # Commented out to avoid overwriting. 
 # Do not comment back in unless you are absolutely sure you want to overwrite!
@@ -363,7 +366,7 @@ getSSC_pred <- function(lm_data, regressors, cluster_funs){ # Version that inclu
 
 # Run SSC prediction algorithm to get clustered prediction for SSC
 river_landsat_pred <- getSSC_pred(na.omit(river_landsat_cl, cols = c(regressors_all, 'cluster_sel')), 
-                                  regressors_all, ssc_cluster_funs)[,':='(
+                                  c('site_no',regressors_all), ssc_cluster_funs)[,':='(
                                     SSC_mgL = 10^pred_cl,
                                     month = month(sample_dt),
                                     # decade = ifelse(year(sample_dt) < 1990, 1990,

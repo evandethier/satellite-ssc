@@ -2016,12 +2016,12 @@ ggsave(qss_reference_compare_panel_plot_wlabels,
        width = 8, height = 6, useDingbats = F) 
 
 ## CALCULATION FOR PAPER ##
-# Reduction in sediment flux relative to pre-dam is significantly related to reservoir capacity
-summary(qss_2020_preDam_river_change_lm) 
-
 qss_2020_preDam_river_change_lm <- lm(
   tons_month_change_preDam ~ log10(RCI),
   qss_2020_1984_w_dams[RCI > 0])
+
+# Reduction in sediment flux relative to pre-dam is significantly related to reservoir capacity
+summary(qss_2020_preDam_river_change_lm) 
 
 # Reduction in sediment flux relative to 1984 is marginally related to new reservoir capacity
 post_1984_rci_sed_reduction_model <- lm(tons_month_change~log10(dam_cap_change), 
@@ -2234,6 +2234,13 @@ wheel_plots_example_continental <- ggplot(site_monthly_band_median_color[RiverNa
 
 
 #### 14B. ALL RIVER WHEELS, ORGANIZED BY LANDMASS, CLUSTER ####
+# Replace high values in color data to allow for plotting of clearer colors
+plot_data <- site_monthly_band_median_color[,':='(
+  B1 = ifelse(B1 >= 2100, 2099, B1),
+  B2 = ifelse(B2 >= 2100, 2099, B2),
+  B3 = ifelse(B3 >= 2100, 2099, B3),
+  B4 = ifelse(B4 >= 2100, 2099, B4)
+)]
 # Grid plot of wheels for each continent, cluster
 ## Aesthetically better to left justify? a challenge...
 for(i in 1:6){
@@ -2383,13 +2390,6 @@ ggplot(watershed_impacts[area_km2_cml > 0], aes(x = log10(cumulative_deforestati
   geom_smooth(method = 'lm') +
   season_facet
 #### 5. WHEEL PLOTS FOR EVERY RIVER, MAX SSC COLOR ARROW MAP ####
-# Replace high values in color data to allow for plotting of clearer colors
-plot_data <- site_monthly_band_median_color[,':='(
-  B1 = ifelse(B1 >= 2100, 2099, B1),
-  B2 = ifelse(B2 >= 2100, 2099, B2),
-  B3 = ifelse(B3 >= 2100, 2099, B3),
-  B4 = ifelse(B4 >= 2100, 2099, B4)
-)]
 
 # Function to make a wheel plot given input data
 # Input data needs to have columns of B1, B2, B3 (for blue, green, red)
@@ -2511,10 +2511,8 @@ for(i in 1:ceiling(nrow(ssc_rivers_stats)/4)){
   ggsave(monthly_q_qss_plot, width = 6, height = 10,
          filename = paste0(wd_exports,'monthly_Q_Qss_panel_', i,'.pdf'),
   ) 
-  
-  river_landsat_pred_subset <- 
     
-    SSC_timeseries <- ggplot(ssc_subset,
+  SSC_timeseries <- ggplot(ssc_subset,
                              aes(x = month/12 + year, y = SSC_mgL)) +
     # geom_line(aes(alpha = SSC_source, group = RiverName)) +
     geom_line(aes(color = SSC_source, group = RiverName)) +
@@ -2614,68 +2612,68 @@ Q_cms_reference_compare <- ggplot(qss_epochs_table[
     axis.title.x = element_markdown(),
     axis.title.y = element_markdown()
   )
-#### 8. NOT DONE! SSC TIMESERIES VS DAM BUILDING, EACH RIVER ####
-river_landsat_daily <- river_landsat_pred[ssc_ann_monthly[, .(Q_cms,year,RiverName,site_no, month)], 
-                                          on = c('year','RiverName','site_no', 'month')][
-                                            ,':='(year = year(sample_dt))
-                                          ][
-                                            dam_timeseries, on = c('site_no','RiverName', 'year')
-                                          ][
-                                            ,':='(tons_month = SSC_mgL * Q_cms)
-                                          ]
-
-
-# Identify years with big dam area increases
-for(i in 1:length(ssc_rivers$RiverName)){
-  
-  river_name_sel <- ssc_rivers$RiverName[i]
-  river_landsat_daily_sel <- river_landsat_daily[
-    RiverName ==  river_name_sel & SSC_mgL > 0 & SSC_mgL < 20000]
-  first_yr <- min(river_landsat_daily_sel[SSC_mgL > 0]$year,na.rm = T)
-  final_dam_area <- max(dam_timeseries[RiverName == river_name_sel]$area_km2_cml, na.rm = T)
-  ssc_dam_diff <- dam_timeseries[RiverName == river_name_sel][
-    ,':='(dam_area_increase_percent = area_km2/area_km2_cml*100)][
-      (year == first_yr) | (dam_area_increase_percent > 5 & year > first_yr + 1),
-      .(year, area_km2, area_km2_cml)][
-        ,':='(dam_period = ifelse(year == first_yr & area_km2_cml < 0.05 * final_dam_area, 'Pre-dam',
-                                  paste0('Dam period ', year)))
-      ][,.(year, dam_period)]
-  
-  setkey(ssc_dam_diff, 'year')
-  setkey(river_landsat_daily_sel, 'year')
-  
-  ssc_dam_periods <- ssc_dam_diff[river_landsat_daily_sel, roll = Inf
-  ]
-  
-  ssc_dam_periods_summary <- ssc_dam_periods[
-    ,.(SSC_mgL = mean(SSC_mgL,na.rm = T),
-       period_start_dt = min(sample_dt, na.rm = T),
-       period_end_dt = max(sample_dt, na.rm = T)),
-    by = dam_period
-  ]
-  dam_timeseries_plot <- ggplot() +
-    geom_line(data = ssc_dam_periods, 
-              aes(x = sample_dt, y = SSC_mgL, color = dam_period,
-                  group = dam_period)) +
-    geom_linerange(data = ssc_dam_periods_summary,
-                   aes(xmin = period_start_dt,
-                       xmax = period_end_dt,
-                       y = SSC_mgL,
-                       color = dam_period)) + 
-    # geom_smooth() +
-    season_facet +
-    labs(
-      x = '',
-      y = 'SSC (mg/L)',
-      title = river_name_sel
-    )
-  
-  ggsave(dam_timeseries_plot, 
-         filename = paste0(wd_exports, 'Dam_SSC_timeseries_', 
-                           gsub('/', '', river_name_sel), '.pdf'),
-         width = 7, height = 5, useDingbats = F)
-}
-
-
-
-
+# #### 8. NOT DONE! SSC TIMESERIES VS DAM BUILDING, EACH RIVER ####
+# river_landsat_daily <- river_landsat_pred[ssc_ann_monthly[, .(Q_cms,year,RiverName,site_no, month)], 
+#                                           on = c('year','RiverName','site_no', 'month')][
+#                                             ,':='(year = year(sample_dt))
+#                                           ][
+#                                             dam_timeseries, on = c('site_no','RiverName', 'year')
+#                                           ][
+#                                             ,':='(tons_month = SSC_mgL * Q_cms)
+#                                           ]
+# 
+# 
+# # Identify years with big dam area increases
+# for(i in 1:length(ssc_rivers$RiverName)){
+#   
+#   river_name_sel <- ssc_rivers$RiverName[i]
+#   river_landsat_daily_sel <- river_landsat_daily[
+#     RiverName ==  river_name_sel & SSC_mgL > 0 & SSC_mgL < 20000]
+#   first_yr <- min(river_landsat_daily_sel[SSC_mgL > 0]$year,na.rm = T)
+#   final_dam_area <- max(dam_timeseries[RiverName == river_name_sel]$area_km2_cml, na.rm = T)
+#   ssc_dam_diff <- dam_timeseries[RiverName == river_name_sel][
+#     ,':='(dam_area_increase_percent = area_km2/area_km2_cml*100)][
+#       (year == first_yr) | (dam_area_increase_percent > 5 & year > first_yr + 1),
+#       .(year, area_km2, area_km2_cml)][
+#         ,':='(dam_period = ifelse(year == first_yr & area_km2_cml < 0.05 * final_dam_area, 'Pre-dam',
+#                                   paste0('Dam period ', year)))
+#       ][,.(year, dam_period)]
+#   
+#   setkey(ssc_dam_diff, 'year')
+#   setkey(river_landsat_daily_sel, 'year')
+#   
+#   ssc_dam_periods <- ssc_dam_diff[river_landsat_daily_sel, roll = Inf
+#   ]
+#   
+#   ssc_dam_periods_summary <- ssc_dam_periods[
+#     ,.(SSC_mgL = mean(SSC_mgL,na.rm = T),
+#        period_start_dt = min(sample_dt, na.rm = T),
+#        period_end_dt = max(sample_dt, na.rm = T)),
+#     by = dam_period
+#   ]
+#   dam_timeseries_plot <- ggplot() +
+#     geom_line(data = ssc_dam_periods, 
+#               aes(x = sample_dt, y = SSC_mgL, color = dam_period,
+#                   group = dam_period)) +
+#     geom_linerange(data = ssc_dam_periods_summary,
+#                    aes(xmin = period_start_dt,
+#                        xmax = period_end_dt,
+#                        y = SSC_mgL,
+#                        color = dam_period)) + 
+#     # geom_smooth() +
+#     season_facet +
+#     labs(
+#       x = '',
+#       y = 'SSC (mg/L)',
+#       title = river_name_sel
+#     )
+#   
+#   ggsave(dam_timeseries_plot, 
+#          filename = paste0(wd_exports, 'Dam_SSC_timeseries_', 
+#                            gsub('/', '', river_name_sel), '.pdf'),
+#          width = 7, height = 5, useDingbats = F)
+# }
+# 
+# 
+# 
+# 

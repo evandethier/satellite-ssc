@@ -187,7 +187,8 @@ milliman_river_database <- fread(paste0(
 # milliman_duplicate_names <- milliman_river_database[RiverName %chin% milliman_river_database[which(duplicated(milliman_river_database$RiverName))]$RiverName]
 
 #### 1D. IMPORT NEAREST REFERENCE STATIONS METADATA TABLE ####
-nearby_stns_final <- nearby_stns_final[,':='(ID = as.character(ID))]
+nearby_stns_final <- fread(paste0(wd_imports, 'nearby_stns_final.csv'),
+                           colClasses = c('ID' = 'character'))
 
 #### 2. JOIN SSC WITH MONTHLY DISCHARGE DATA ####
 #### 2A. SELECT DISCHARGE COLUMNS AND ADD METADATA ####
