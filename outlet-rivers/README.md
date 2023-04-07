@@ -98,6 +98,6 @@ Scroll through the remainder of the page to see every river in our analysis, org
 
 #### References
 
-[^1]: Dethier, E. N., Renshaw, C. E., & Magilligan, F. J. (2022). Rapid changes to global river suspended sediment flux by humans. *Science*, 376(6600), 1447-1452. [DOI:10.1126/science.abn798](https://doi.org/10.1126/science.abn798)
+[^1]: Dethier, E. N., Renshaw, C. E., & Magilligan, F. J. (2022). Rapid changes to global river suspended sediment flux by humans. *Science*, 376(6600), 1447-1452. [DOI:10.1126/science.abn798](https://doi.org/10.1126/science.abn7980)
 
 [^2]: Dethier, E. N., Sartain, S. L., & Lutz, D. A. (2019). Heightened levels and seasonal inversion of riverine suspended sediment in a tropical biodiversity hot spot due to artisanal gold mining. Proceedings of the National Academy of Sciences of the United States of America, 116(48), 23936-23941. [doi:10.1073/pnas.1907842116](https://doi.org/10.1073/pnas.1907842116)
