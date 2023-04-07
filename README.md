@@ -7,7 +7,7 @@ The calibrations described here were made using 134,697 *in situ* measurements a
 
 For information on how to implement these techniques for calibration or prediction, refer to the documentation provided in the [**satellite-ssc**](landsat-calibration) subfolders.
 
-For our application of this work to global rivers, [published in Science](https://doi.org/10.1126/science.abn7980), refer to [**subfolders here](outlet-rivers).
+For our application of this work to global rivers, [published in Science](https://doi.org/10.1126/science.abn7980), refer to [**subfolders here**](outlet-rivers).
 
 # Introduction to calibration techniques and results #
 
