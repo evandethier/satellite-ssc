@@ -171,7 +171,11 @@ for(i in 1:length(export_folder_paths)){
 #### 1. SET-UP AND EXECUTE DOWNLOAD(S) ####
 #### 1A. SET-UP DOWNLOAD(S) ####
 # Specify Zenodo DOI
-zenodo_doi <- '10.5281/zenodo.7772047'
+zenodo_doi <- '10.5281/zenodo.7808492'
+zenodo_history <- get_versions(zenodo_doi)
+print(zenodo_history)
+# Get latest version
+zenodo_doi <- zenodo_history$doi[nrow(zenodo_history)]
 
 # Select certain Zenodo files
 
