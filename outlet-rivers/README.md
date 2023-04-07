@@ -63,7 +63,7 @@ The trapping of sediment by dams in the Global North and the increased erosion i
 
 * [**All the code is here**](https://github.com/evandethier/satellite-ssc/tree/master/outlet-rivers/R). You don't even need to manually download the data. The first file (`0_download_files_from_zenodo.R`) downloads the data from the repository. 
 
-* [**All the data (and the code, too) are here**](https://doi.org/10.5281/zenodo.7772047). If you'd rather work with the files that we generated, they are stored at this repository. Note: the code at this link will not be updated as often as this github page.
+* [**All the data (and the code, too) are here**](https://doi.org/10.5281/zenodo.7808492). If you'd rather work with the files that we generated, they are stored at this repository. Note: the code at this link will not be updated as often as this github page.
 
 * The place in the code where each figure from the *Science* paper is generated is shown in [this file**](https://github.com/evandethier/satellite-ssc/blob/master/outlet-rivers/where_figs_are_in_code.xlsx)
 
