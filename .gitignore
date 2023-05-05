@@ -9,3 +9,7 @@ outlet-rivers/R/R.zip
 # Remove zip files to limit upload times
 outlet-rivers/*.zip
 .DS_Store
+
+# Remove imports
+outlet_river_controls/imports/
+outlet_river_controls/figures/
